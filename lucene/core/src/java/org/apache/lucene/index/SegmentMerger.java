@@ -28,6 +28,7 @@ import org.apache.lucene.codecs.NormsProducer;
 import org.apache.lucene.codecs.PointsWriter;
 import org.apache.lucene.codecs.StoredFieldsWriter;
 import org.apache.lucene.codecs.TermVectorsWriter;
+import org.apache.lucene.codecs.VectorsWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.util.InfoStream;
@@ -165,6 +166,17 @@ final class SegmentMerger {
       mergeState.infoStream.message("SM", ((t1-t0)/1000000) + " msec to merge points [" + numMerged + " docs]");
     }
 
+    if (mergeState.infoStream.isEnabled("SM")) {
+      t0 = System.nanoTime();
+    }
+    if (mergeState.mergeFieldInfos.hasVectorValues()) {
+      mergeVectorValues(segmentWriteState);
+    }
+    if (mergeState.infoStream.isEnabled("SM")) {
+      long t1 = System.nanoTime();
+      mergeState.infoStream.message("SM", ((t1-t0)/1000000) + " msec to merge vector values [" + numMerged + " docs]");
+    }
+
     if (mergeState.mergeFieldInfos.hasVectors()) {
       if (mergeState.infoStream.isEnabled("SM")) {
         t0 = System.nanoTime();
@@ -193,6 +205,12 @@ final class SegmentMerger {
   private void mergeDocValues(SegmentWriteState segmentWriteState) throws IOException {
     try (DocValuesConsumer consumer = codec.docValuesFormat().fieldsConsumer(segmentWriteState)) {
       consumer.merge(mergeState);
+    }
+  }
+
+  private void mergeVectorValues(SegmentWriteState segmentWriteState) throws IOException {
+    try (VectorsWriter vectorsWriter = codec.vectorsFormat().fieldsWriter(segmentWriteState)) {
+      vectorsWriter.merge(mergeState);
     }
   }
 

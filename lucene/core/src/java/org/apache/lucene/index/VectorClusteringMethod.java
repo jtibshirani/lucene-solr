@@ -151,14 +151,12 @@ public class VectorClusteringMethod {
     }
 
     public BytesRef findClosestCentroid(BinaryDocValues values) throws IOException {
-      BytesRef bytes = values.binaryValue();
-      float[] vector = VectorField.decode(bytes);
-
+      BytesRef vector = values.binaryValue();
       double bestDist = Double.POSITIVE_INFINITY;
       int bestCentroid = -1;
 
       for (int c = 0; c < centroids.length; c++) {
-        double dist = VectorField.l2norm(vector, centroids[c]);
+        double dist = VectorField.l2norm(centroids[c], vector);
         if (dist < bestDist) {
           bestDist = dist;
           bestCentroid = c;

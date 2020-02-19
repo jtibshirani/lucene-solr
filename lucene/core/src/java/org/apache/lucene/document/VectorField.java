@@ -72,4 +72,15 @@ public final class VectorField extends Field {
     }
     return Math.sqrt(l2norm);
   }
+
+  public static double l2norm(float[] first, BytesRef second) {
+    ByteBuffer byteBuffer = ByteBuffer.wrap(second.bytes, second.offset, second.length);
+
+    double l2norm = 0;
+    for (int v = 0; v < first.length; v++) {
+      double diff = first[v] - byteBuffer.getFloat();
+      l2norm += diff * diff;
+    }
+    return Math.sqrt(l2norm);
+  }
 }

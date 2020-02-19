@@ -25,6 +25,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.VectorField;
+import org.apache.lucene.search.ExactVectorDistanceQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.VectorDistanceQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.LuceneTestCase;
 
@@ -68,6 +73,7 @@ public class TestVectorsFormat extends LuceneTestCase {
 
     int numDoc = 10;
     int dim = 32;
+
     int docId = 0;
     for (int i = 0; i < numDoc; i++) {
       float[] vector = randomVector(dim);
@@ -94,6 +100,64 @@ public class TestVectorsFormat extends LuceneTestCase {
       Terms terms = vectorValues.getClusterPostings();
       assertNotNull(terms);
     }
+
+    reader.close();
+    dir.close();
+  }
+
+  public void testVectorDistanceQuery() throws Exception {
+    Directory dir = newDirectory();
+    IndexWriter writer = new IndexWriter(dir, newIndexWriterConfig(null).setCodec(Codec.forName("Lucene90")));
+
+    int numDoc = 10;
+    int dim = 32;
+
+    float[][] values = new float[numDoc][];
+    for (int i = 0; i < numDoc; i++) {
+      values[i] = randomVector(dim);
+      add(writer, i, values[i]);
+    }
+
+    writer.commit();
+    writer.close();
+
+    float[] queryVector = randomVector(dim);
+    Query query = new VectorDistanceQuery(VECTOR_FIELD, queryVector, 2);
+
+    IndexReader reader = DirectoryReader.open(dir);
+    IndexSearcher searcher = newSearcher(reader);
+
+    TopDocs topDocs = searcher.search(query, 5);
+    assertEquals(5, topDocs.scoreDocs.length);
+
+    reader.close();
+    dir.close();
+  }
+
+  public void testExactVectorDistanceQuery() throws Exception {
+    Directory dir = newDirectory();
+    IndexWriter writer = new IndexWriter(dir, newIndexWriterConfig(null).setCodec(Codec.forName("Lucene90")));
+
+    int numDoc = 10;
+    int dim = 32;
+
+    float[][] values = new float[numDoc][];
+    for (int i = 0; i < numDoc; i++) {
+      values[i] = randomVector(dim);
+      add(writer, i, values[i]);
+    }
+
+    writer.commit();
+    writer.close();
+
+    float[] queryVector = randomVector(dim);
+    Query query = new ExactVectorDistanceQuery(VECTOR_FIELD, queryVector);
+
+    IndexReader reader = DirectoryReader.open(dir);
+    IndexSearcher searcher = newSearcher(reader);
+
+    TopDocs topDocs = searcher.search(query, 5);
+    assertEquals(5, topDocs.scoreDocs.length);
 
     reader.close();
     dir.close();

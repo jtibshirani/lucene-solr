@@ -101,7 +101,6 @@ public class TestVectorsFormat extends LuceneTestCase {
       assertNotNull(terms);
     }
 
-
     reader.close();
     dir.close();
   }
@@ -130,6 +129,9 @@ public class TestVectorsFormat extends LuceneTestCase {
 
     TopDocs topDocs = searcher.search(query, 5);
     assertEquals(5, topDocs.scoreDocs.length);
+
+    reader.close();
+    dir.close();
   }
 
   public void testExactVectorDistanceQuery() throws Exception {
@@ -156,6 +158,9 @@ public class TestVectorsFormat extends LuceneTestCase {
 
     TopDocs topDocs = searcher.search(query, 5);
     assertEquals(5, topDocs.scoreDocs.length);
+
+    reader.close();
+    dir.close();
   }
 
   private float[] randomVector(int dim) {

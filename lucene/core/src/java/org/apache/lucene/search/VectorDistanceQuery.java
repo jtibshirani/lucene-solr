@@ -30,6 +30,7 @@ import org.apache.lucene.codecs.VectorValues;
 import org.apache.lucene.document.VectorField;
 import org.apache.lucene.index.BinaryDocValues;
 import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.similarities.BooleanSimilarity;
 import org.apache.lucene.search.similarities.Similarity;
@@ -52,7 +53,7 @@ public class VectorDistanceQuery extends Query {
 
   @Override
   public Weight createWeight(IndexSearcher searcher, ScoreMode scoreMode, float boost) throws IOException {
-    return new VectorDistanceWeight(this, boost, scoreMode, field, queryVector, numProbes);
+    return new VectorDistanceWeight(this, boost, field, queryVector, numProbes);
   }
 
   @Override
@@ -86,17 +87,15 @@ public class VectorDistanceQuery extends Query {
   }
 
   private static class VectorDistanceWeight extends Weight {
-    private final ScoreMode scoreMode;
     private final float boost;
 
     private final String field;
     private final float[] queryVector;
     private final int numProbes;
 
-    VectorDistanceWeight(Query query, float boost, ScoreMode scoreMode,
-                         String field, float[] queryVector, int numProbes) {
+    VectorDistanceWeight(Query query, float boost, String field,
+                         float[] queryVector, int numProbes) {
       super(query);
-      this.scoreMode = scoreMode;
       this.boost = boost;
 
       this.field = field;
@@ -115,20 +114,18 @@ public class VectorDistanceQuery extends Query {
       TermsEnum clusters = vectorValues.getClusterPostings().iterator();
       BinaryDocValues docValues = vectorValues.getVectorValues();
 
-      List<BytesRef> closestCentroids = findClosestCentroids(clusters);
+      Similarity.SimScorer simScorer = new BooleanSimilarity().scorer(1.0f, null);
+      LeafSimScorer leafSimScorer = new LeafSimScorer(simScorer, context.reader(), field, false);
+
+      List<PostingsEnum> closestCentroids = findClosestCentroids(clusters);
 
       List<Scorer> subScorers = new ArrayList<>();
-      for (BytesRef encodedCentroid : closestCentroids) {
-        boolean seekSuccess = clusters.seekExact(encodedCentroid);
-        assert seekSuccess;
-
-        Similarity.SimScorer simScorer = new BooleanSimilarity().scorer(1.0f, null);
-        LeafSimScorer leafSimScorer = new LeafSimScorer(simScorer, context.reader(), field, false);
-        TermScorer termScorer = new TermScorer(this, clusters.postings(null), leafSimScorer);
+      for (PostingsEnum cluster : closestCentroids) {
+        TermScorer termScorer = new TermScorer(this, cluster, leafSimScorer);
         subScorers.add(termScorer);
       }
 
-      return new DisjunctionScorer(this, subScorers, scoreMode) {
+      return new DisjunctionScorer(this, subScorers, ScoreMode.COMPLETE_NO_SCORES) {
         @Override
         protected float score(DisiWrapper topList) throws IOException {
           int docId = docValues.advance(topList.doc);
@@ -146,9 +143,19 @@ public class VectorDistanceQuery extends Query {
       };
     }
 
-    private List<BytesRef> findClosestCentroids(TermsEnum centroids) throws IOException {
-      PriorityQueue<Map.Entry<BytesRef, Double>> queue = new PriorityQueue<>(
-          (first, second) -> -1 * Double.compare(first.getValue(), second.getValue()));
+    private static class ClusterWithDistance {
+      double distance;
+      PostingsEnum postings;
+
+      public ClusterWithDistance(double distance, PostingsEnum postings) {
+        this.distance = distance;
+        this.postings = postings;
+      }
+    }
+
+    private List<PostingsEnum> findClosestCentroids(TermsEnum centroids) throws IOException {
+      PriorityQueue<ClusterWithDistance> queue = new PriorityQueue<>(
+          (first, second) -> -1 * Double.compare(first.distance, second.distance));
 
       while (true) {
         BytesRef encodedCentroid = centroids.next();
@@ -158,21 +165,21 @@ public class VectorDistanceQuery extends Query {
 
         double dist = VectorField.l2norm(queryVector, encodedCentroid);
         if (queue.size() < numProbes) {
-          BytesRef centroidCopy = BytesRef.deepCopyOf(encodedCentroid);
-          queue.add(Map.entry(centroidCopy, dist));
+          queue.add(new ClusterWithDistance(dist,
+              centroids.postings(null, PostingsEnum.NONE)));
         } else {
-          Map.Entry<BytesRef, Double> head = queue.peek();
-          if (dist < head.getValue()) {
+          ClusterWithDistance head = queue.peek();
+          if (dist < head.distance) {
             queue.poll();
-            BytesRef centroidCopy = BytesRef.deepCopyOf(encodedCentroid);
-            queue.add(Map.entry(centroidCopy, dist));
+            queue.add(new ClusterWithDistance(dist,
+                centroids.postings(null, PostingsEnum.NONE)));
           }
         }
       }
 
-      List<BytesRef> closestCentroids = new ArrayList<>(queue.size());
-      for (Map.Entry<BytesRef, Double> entry : queue) {
-        closestCentroids.add(entry.getKey());
+      List<PostingsEnum> closestCentroids = new ArrayList<>(queue.size());
+      for (ClusterWithDistance cluster : queue) {
+        closestCentroids.add(cluster.postings);
       }
       return closestCentroids;
     }

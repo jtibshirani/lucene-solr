@@ -270,7 +270,11 @@ public final class SegmentReader extends CodecReader {
   @Override
   public FieldsProducer getPostingsReader() {
     ensureOpen();
-    return core.fields;
+    if (fieldInfos.hasVectorValues()) {
+      return getVectorsReader().getPostingsReader();
+    } else {
+      return core.fields;
+    }
   }
 
   @Override

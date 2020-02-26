@@ -21,8 +21,10 @@ import java.io.IOException;
 
 import org.apache.lucene.index.BinaryDocValues;
 import org.apache.lucene.index.Terms;
+import org.apache.lucene.util.BytesRef;
 
 public interface VectorValues {
   BinaryDocValues getVectorValues() throws IOException;
   Terms getClusterPostings() throws IOException;
+  BytesRef[] getCentroids() throws IOException;
 }

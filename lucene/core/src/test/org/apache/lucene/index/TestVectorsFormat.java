@@ -101,7 +101,6 @@ public class TestVectorsFormat extends LuceneTestCase {
       assertNotNull(terms);
     }
 
-
     reader.close();
     dir.close();
   }
@@ -122,14 +121,18 @@ public class TestVectorsFormat extends LuceneTestCase {
     writer.commit();
     writer.close();
 
-    float[] queryVector = randomVector(dim);
-    Query query = new VectorDistanceQuery(VECTOR_FIELD, queryVector, 2);
-
     IndexReader reader = DirectoryReader.open(dir);
     IndexSearcher searcher = newSearcher(reader);
 
-    TopDocs topDocs = searcher.search(query, 5);
-    assertEquals(5, topDocs.scoreDocs.length);
+    for (int i = 0; i < 1000; i++) {
+      float[] queryVector = randomVector(dim);
+      Query query = new VectorDistanceQuery(VECTOR_FIELD, queryVector, 2);
+
+
+
+      TopDocs topDocs = searcher.search(query, 5);
+      assertEquals(5, topDocs.scoreDocs.length);
+    }
   }
 
   public void testExactVectorDistanceQuery() throws Exception {

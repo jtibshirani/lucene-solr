@@ -18,6 +18,9 @@
 package org.apache.lucene.codecs.lucene90;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.lucene.codecs.DocValuesProducer;
 import org.apache.lucene.codecs.FieldsProducer;
@@ -33,14 +36,18 @@ import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SegmentReadState;
 import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.util.BytesRef;
 
 public class Lucene90VectorsReader extends VectorsReader {
   private final DocValuesProducer docValuesReader;
   private final FieldsProducer postingsReader;
+  private final ConcurrentMap<String, BytesRef[]> centroidsCache;
 
   public Lucene90VectorsReader(SegmentReadState state) throws IOException {
     this.docValuesReader = new Lucene80DocValuesFormat().fieldsProducer(state);
     this.postingsReader = new Lucene84PostingsFormat().fieldsProducer(state);
+    this.centroidsCache = new ConcurrentHashMap<>();
   }
 
   @Override
@@ -50,7 +57,12 @@ public class Lucene90VectorsReader extends VectorsReader {
   }
 
   @Override
-  public VectorValues getVectorValues(FieldInfo field) throws IOException {
+  public FieldsProducer getPostingsReader() {
+    return postingsReader;
+  }
+
+  @Override
+  public VectorValues getVectorValues(FieldInfo field) {
     return new VectorValues() {
       @Override
       public BinaryDocValues getVectorValues() throws IOException {
@@ -60,6 +72,25 @@ public class Lucene90VectorsReader extends VectorsReader {
       @Override
       public Terms getClusterPostings() throws IOException {
         return postingsReader.terms(field.name);
+      }
+
+      @Override
+      public BytesRef[] getCentroids() {
+        return centroidsCache.computeIfAbsent(field.name, key -> {
+          try {
+            Terms terms = getClusterPostings();
+            TermsEnum termsEnum = terms.iterator();
+            int numCentroids = (int) terms.size();
+
+            BytesRef[] result = new BytesRef[(int) terms.size()];
+            for (int i = 0; i < numCentroids; i++) {
+              result[i] = BytesRef.deepCopyOf(termsEnum.next());
+            }
+            return result;
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
       }
     };
   }

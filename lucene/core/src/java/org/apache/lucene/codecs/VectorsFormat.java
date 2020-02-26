@@ -47,6 +47,11 @@ public abstract class VectorsFormat {
         public void checkIntegrity() {}
 
         @Override
+        public FieldsProducer getPostingsReader() {
+          return null;
+        }
+
+        @Override
         public VectorValues getVectorValues(FieldInfo field) {
           return null;
         }

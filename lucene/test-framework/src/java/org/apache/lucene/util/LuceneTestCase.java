@@ -1969,7 +1969,17 @@ public abstract class LuceneTestCase extends Assert {
             : new IndexSearcher(r.getContext(), ex);
       }
       ret.setSimilarity(classEnvRule.similarity);
-      ret.setQueryCachingPolicy(MAYBE_CACHE_POLICY);
+      ret.setQueryCachingPolicy(new QueryCachingPolicy() {
+        @Override
+        public void onUse(Query query) {
+
+        }
+
+        @Override
+        public boolean shouldCache(Query query) throws IOException {
+          return true;
+        }
+      });
       return ret;
     }
   }

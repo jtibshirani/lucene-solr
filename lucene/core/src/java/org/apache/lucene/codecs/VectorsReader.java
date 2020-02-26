@@ -27,4 +27,5 @@ import org.apache.lucene.index.Terms;
 public abstract class VectorsReader implements Closeable {
   public abstract VectorValues getVectorValues(FieldInfo field) throws IOException;
   public abstract void checkIntegrity() throws IOException;
+  public abstract FieldsProducer getPostingsReader();
 }

@@ -33,7 +33,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.LRUQueryCache;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryCachingPolicy;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.VectorDistanceQuery;
@@ -49,6 +51,7 @@ public class PythonEntryPoint {
   private Directory directory;
   private IndexWriter indexWriter;
   private IndexReader indexReader;
+  private IndexSearcher indexSearcher;
 
   public static void main(String[] args) {
     GatewayServer gatewayServer = new GatewayServer(new PythonEntryPoint());
@@ -85,15 +88,26 @@ public class PythonEntryPoint {
 
   public void openReader() throws IOException {
     indexReader = DirectoryReader.open(directory);
+    indexSearcher = new IndexSearcher(indexReader);
+    indexSearcher.setQueryCache(new LRUQueryCache(1000, 1000000, ignored -> true, 250));
+    indexSearcher.setQueryCachingPolicy(new QueryCachingPolicy() {
+      @Override
+      public void onUse(Query query) {
+
+      }
+
+      @Override
+      public boolean shouldCache(Query query) throws IOException {
+        return true;
+      }
+    });
   }
 
   public List<Integer> search(List<Number> queryVector, int k, int numCands) throws IOException {
-    IndexSearcher searcher = new IndexSearcher(indexReader);
-
     float[] value = convertToArray(queryVector);
     Query query = new VectorDistanceQuery(VECTOR_FIELD, value, numCands);
 
-    TopDocs topDocs = searcher.search(query, k);
+    TopDocs topDocs = indexSearcher.search(query, k);
 
     List<Integer> result = new ArrayList<>(k);
     for (ScoreDoc scoreDoc : topDocs.scoreDocs) {

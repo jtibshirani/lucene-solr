@@ -35,7 +35,7 @@ public class VectorClusteringMethod {
 
   public VectorClusteringMethod(int numDocs) {
     this.numDocs = numDocs;
-    this.numCentroids = (int) Math.sqrt(numDocs);
+    this.numCentroids = numDocs / 10;
     this.random = new Random(42L);
   }
 

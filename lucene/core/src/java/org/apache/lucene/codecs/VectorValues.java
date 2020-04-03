@@ -26,13 +26,11 @@ import org.apache.lucene.util.BytesRef;
 
 public abstract class VectorValues {
 
-  /**
-   * Provides the vector value for each document.
-   *
-   * The float vectors are encoded as bytes. The methods {@link VectorValues#decode} and {@link VectorValues#l2norm}
-   * should be used to access the values.
-   */
-  public abstract BinaryDocValues getValues() throws IOException;
+  public abstract DocIdSetIterator iterator();
+
+  public abstract float[] value() throws IOException;
+
+  public abstract double distance(float[] query) throws IOException;
 
   /**
    * For the given query vector, finds a set of candidate nearest neighbors.

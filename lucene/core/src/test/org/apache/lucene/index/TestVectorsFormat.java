@@ -33,6 +33,8 @@ import org.apache.lucene.search.VectorDistanceQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.LuceneTestCase;
 
+import static org.apache.lucene.search.DocIdSetIterator.NO_MORE_DOCS;
+
 // TODO: improve tests
 public class TestVectorsFormat extends LuceneTestCase {
 
@@ -56,9 +58,7 @@ public class TestVectorsFormat extends LuceneTestCase {
     IndexReader reader = DirectoryReader.open(dir);
     for (LeafReaderContext leafReaderContext : reader.leaves()) {
       VectorValues vectorValues = leafReaderContext.reader().getVectorValues(VECTOR_FIELD);
-
-      BinaryDocValues docValues = vectorValues.getValues();
-      assertNotNull(docValues);
+      assertNotEquals(vectorValues.iterator().nextDoc(), NO_MORE_DOCS);
     }
 
     reader.close();
@@ -90,9 +90,7 @@ public class TestVectorsFormat extends LuceneTestCase {
     IndexReader reader = DirectoryReader.open(dir);
     for (LeafReaderContext leafReaderContext : reader.leaves()) {
       VectorValues vectorValues = leafReaderContext.reader().getVectorValues(VECTOR_FIELD);
-
-      BinaryDocValues docValues = vectorValues.getValues();
-      assertNotNull(docValues);
+      assertNotEquals(vectorValues.iterator().nextDoc(), NO_MORE_DOCS);
     }
 
     reader.close();

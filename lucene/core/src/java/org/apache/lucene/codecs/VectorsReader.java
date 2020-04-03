@@ -23,6 +23,6 @@ import java.io.IOException;
 import org.apache.lucene.index.FieldInfo;
 
 public abstract class VectorsReader implements Closeable {
-  public abstract VectorValues getVectorValues(FieldInfo field);
+  public abstract VectorValues getVectorValues(FieldInfo field) throws IOException;
   public abstract void checkIntegrity() throws IOException;
 }

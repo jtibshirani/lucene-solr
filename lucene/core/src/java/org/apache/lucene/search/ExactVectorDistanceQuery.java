@@ -93,12 +93,11 @@ public class ExactVectorDistanceQuery extends Query {
     @Override
     public Scorer scorer(LeafReaderContext context) throws IOException {
       VectorValues vectorValues = context.reader().getVectorValues(field);
-      BinaryDocValues docValues = vectorValues.getValues();
 
       return new Scorer(this) {
         @Override
         public DocIdSetIterator iterator() {
-          return docValues;
+          return vectorValues.iterator();
         }
 
         @Override
@@ -108,14 +107,13 @@ public class ExactVectorDistanceQuery extends Query {
 
         @Override
         public float score() throws IOException {
-          BytesRef encodedVector = docValues.binaryValue();
-          double dist = VectorValues.l2norm(queryVector, encodedVector);
+          double dist = vectorValues.distance(queryVector);
           return (float) (boost / (1.0 + dist));
         }
 
         @Override
         public int docID() {
-          return docValues.docID();
+          return vectorValues.iterator().docID();
         }
       };
     }

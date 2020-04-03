@@ -103,7 +103,6 @@ public class VectorDistanceQuery extends Query {
     public Scorer scorer(LeafReaderContext context) throws IOException {
       VectorValues vectorValues = context.reader().getVectorValues(field);
       DocIdSetIterator candidates = vectorValues.getNearestVectors(queryVector, numProbes);
-      BinaryDocValues docValues = vectorValues.getValues();
 
       return new Scorer(this) {
         @Override
@@ -118,9 +117,8 @@ public class VectorDistanceQuery extends Query {
 
         @Override
         public float score() throws IOException {
-          docValues.advance(docID());
-          BytesRef encodedVector = docValues.binaryValue();
-          double dist = VectorValues.l2norm(queryVector, encodedVector);
+          vectorValues.iterator().advance(docID());
+          double dist = vectorValues.distance(queryVector);
           return (float) (boost / (1.0 + dist));
         }
 

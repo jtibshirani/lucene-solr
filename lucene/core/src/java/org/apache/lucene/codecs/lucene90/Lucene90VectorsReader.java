@@ -56,11 +56,25 @@ public class Lucene90VectorsReader extends VectorsReader {
   }
 
   @Override
-  public VectorValues getVectorValues(FieldInfo field) {
+  public VectorValues getVectorValues(FieldInfo field) throws IOException {
+    BinaryDocValues docValues = docValuesReader.getBinary(field);
     return new VectorValues() {
+
       @Override
-      public BinaryDocValues getValues() throws IOException {
-        return docValuesReader.getBinary(field);
+      public DocIdSetIterator iterator() {
+        return docValues;
+      }
+
+      @Override
+      public float[] value() throws IOException {
+        BytesRef vector = docValues.binaryValue();
+        return VectorValues.decode(vector);
+      }
+
+      @Override
+      public double distance(float[] query) throws IOException {
+        BytesRef vector = docValues.binaryValue();
+        return VectorValues.l2norm(query, vector);
       }
 
       @Override

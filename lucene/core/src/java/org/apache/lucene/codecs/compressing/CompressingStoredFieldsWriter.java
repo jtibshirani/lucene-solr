@@ -284,8 +284,8 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
       }
     }
 
-    final long infoAndBits = (((long) info.number) << TYPE_BITS) | bits;
-    bufferedDocs.writeVLong(infoAndBits);
+    bufferedDocs.writeVInt(info.number);
+    bufferedDocs.writeVInt(bits);
 
     if (bytes != null) {
       bufferedDocs.writeVInt(bytes.length);

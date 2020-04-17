@@ -579,11 +579,10 @@ public final class CompressingStoredFieldsReader extends StoredFieldsReader {
     final SerializedDocument doc = document(docID);
 
     for (int fieldIDX = 0; fieldIDX < doc.numStoredFields; fieldIDX++) {
-      final long infoAndBits = doc.in.readVLong();
-      final int fieldNumber = (int) (infoAndBits >>> TYPE_BITS);
+      final int fieldNumber = doc.in.readVInt();
       final FieldInfo fieldInfo = fieldInfos.fieldInfo(fieldNumber);
 
-      final int bits = (int) (infoAndBits & TYPE_MASK);
+      final int bits = doc.in.readVInt();
       assert bits <= NUMERIC_DOUBLE: "bits=" + Integer.toHexString(bits);
 
       switch(visitor.needsField(fieldInfo)) {

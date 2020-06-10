@@ -581,8 +581,13 @@ public final class CompressingStoredFieldsReader extends StoredFieldsReader {
 
     final SerializedDocument doc = document(docID);
 
+    final long[] schema = new long[doc.numStoredFields];
     for (int fieldIDX = 0; fieldIDX < doc.numStoredFields; fieldIDX++) {
-      final long infoAndBits = doc.in.readVLong();
+      schema[fieldIDX] = doc.in.readVLong();
+    }
+
+    for (int fieldIDX = 0; fieldIDX < doc.numStoredFields; fieldIDX++) {
+      final long infoAndBits = schema[fieldIDX];
       final int fieldNumber = (int) (infoAndBits >>> TYPE_BITS);
       final FieldInfo fieldInfo = fieldInfos.fieldInfo(fieldNumber);
 

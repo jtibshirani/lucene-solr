@@ -33,6 +33,7 @@ import org.apache.lucene.index.IndexFileNames;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.MergeState;
 import org.apache.lucene.index.SegmentInfo;
+import org.apache.lucene.store.ByteBuffersDataOutput;
 import org.apache.lucene.store.DataOutput;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.GrowableByteArrayDataOutput;
@@ -85,6 +86,7 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
   private final int maxDocsPerChunk;
 
   private final GrowableByteArrayDataOutput bufferedDocs;
+  private final ByteBuffersDataOutput bufferedDocData;
   private int[] numStoredFields; // number of stored fields
   private int[] endOffsets; // end offsets in bufferedDocs
   private int docBase; // doc ID at the beginning of the chunk
@@ -104,6 +106,7 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
     this.maxDocsPerChunk = maxDocsPerChunk;
     this.docBase = 0;
     this.bufferedDocs = new GrowableByteArrayDataOutput(chunkSize);
+    this.bufferedDocData = ByteBuffersDataOutput.newResettableInstance();
     this.numStoredFields = new int[16];
     this.endOffsets = new int[16];
     this.numBufferedDocs = 0;
@@ -153,6 +156,10 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
     }
     this.numStoredFields[numBufferedDocs] = numStoredFieldsInDoc;
     numStoredFieldsInDoc = 0;
+
+    bufferedDocData.copyTo(bufferedDocs);
+    bufferedDocData.reset();
+
     endOffsets[numBufferedDocs] = bufferedDocs.getPosition();
     ++numBufferedDocs;
     if (triggerFlush()) {
@@ -211,6 +218,7 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
   }
 
   private void flush() throws IOException {
+    assert bufferedDocData.size() == 0;
     indexWriter.writeIndex(numBufferedDocs, fieldsStream.getFilePointer());
 
     // transform end offsets into lengths
@@ -282,19 +290,19 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
     bufferedDocs.writeVLong(infoAndBits);
 
     if (bytes != null) {
-      bufferedDocs.writeVInt(bytes.length);
-      bufferedDocs.writeBytes(bytes.bytes, bytes.offset, bytes.length);
+      bufferedDocData.writeVInt(bytes.length);
+      bufferedDocData.writeBytes(bytes.bytes, bytes.offset, bytes.length);
     } else if (string != null) {
-      bufferedDocs.writeString(string);
+      bufferedDocData.writeString(string);
     } else {
       if (number instanceof Byte || number instanceof Short || number instanceof Integer) {
-        bufferedDocs.writeZInt(number.intValue());
+        bufferedDocData.writeZInt(number.intValue());
       } else if (number instanceof Long) {
-        writeTLong(bufferedDocs, number.longValue());
+        writeTLong(bufferedDocData, number.longValue());
       } else if (number instanceof Float) {
-        writeZFloat(bufferedDocs, number.floatValue());
+        writeZFloat(bufferedDocData, number.floatValue());
       } else if (number instanceof Double) {
-        writeZDouble(bufferedDocs, number.doubleValue());
+        writeZDouble(bufferedDocData, number.doubleValue());
       } else {
         throw new AssertionError("Cannot get here");
       }

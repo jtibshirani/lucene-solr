@@ -160,6 +160,10 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
     bufferedDocData.copyTo(bufferedDocs);
     bufferedDocData.reset();
 
+    if (true) {
+      throw new IllegalArgumentException();
+    }
+
     endOffsets[numBufferedDocs] = bufferedDocs.getPosition();
     ++numBufferedDocs;
     if (triggerFlush()) {

@@ -50,6 +50,11 @@ public class InputStreamDataInput extends DataInput implements Closeable {
   }
 
   @Override
+  public void skipBytes(long numBytes) throws IOException {
+    is.skip(numBytes);
+  }
+
+  @Override
   public void close() throws IOException {
     is.close();
   }

@@ -302,6 +302,11 @@ public final class PagedBytes implements Accountable {
       return clone;
     }
 
+    @Override
+    public void skipBytes(long numBytes) throws IOException {
+      readScratchBytes(numBytes);
+    }
+
     /** Returns the current byte position. */
     public long getPosition() {
       return (long) currentBlockIndex * blockSize + currentBlockUpto;

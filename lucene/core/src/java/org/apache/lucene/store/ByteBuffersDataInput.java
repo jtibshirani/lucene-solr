@@ -17,6 +17,7 @@
 package org.apache.lucene.store;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -206,6 +207,15 @@ public final class ByteBuffersDataInput extends DataInput implements Accountable
   public void seek(long position) throws EOFException {
     this.pos = position + offset;
     if (position > size()) {
+      this.pos = size();
+      throw new EOFException();
+    }
+  }
+
+  @Override
+  public void skipBytes(long numBytes) throws IOException {
+    pos += numBytes;
+    if (position() > offset) {
       this.pos = size();
       throw new EOFException();
     }

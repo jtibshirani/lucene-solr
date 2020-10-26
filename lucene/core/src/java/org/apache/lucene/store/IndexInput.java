@@ -71,6 +71,11 @@ public abstract class IndexInput extends DataInput implements Cloneable,Closeabl
    */
   public abstract void seek(long pos) throws IOException;
 
+  @Override
+  public void skipBytes(long numBytes) throws IOException {
+    seek(getFilePointer() + numBytes);
+  }
+
   /** The number of bytes in the file. */
   public abstract long length();
 

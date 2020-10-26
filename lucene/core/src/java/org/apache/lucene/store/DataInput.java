@@ -325,7 +325,9 @@ public abstract class DataInput implements Cloneable {
    * buffer and discarding its content. Negative values of <code>numBytes</code>
    * are not supported.
    */
-  public void skipBytes(final long numBytes) throws IOException {
+  public abstract void skipBytes(final long numBytes) throws IOException;
+
+  public void readScratchBytes(final long numBytes) throws IOException {
     if (numBytes < 0) {
       throw new IllegalArgumentException("numBytes must be >= 0, got " + numBytes);
     }

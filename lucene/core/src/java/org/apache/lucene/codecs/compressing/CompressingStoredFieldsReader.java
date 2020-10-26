@@ -600,6 +600,10 @@ public final class CompressingStoredFieldsReader extends StoredFieldsReader {
             bytes.length -= len;
           }
 
+          @Override
+          public void skipBytes(long numBytes) throws IOException {
+            readScratchBytes(numBytes);
+          }
         };
       } else {
         fieldsStream.seek(startPointer);

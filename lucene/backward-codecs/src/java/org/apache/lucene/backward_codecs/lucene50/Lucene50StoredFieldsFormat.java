@@ -18,7 +18,7 @@ package org.apache.lucene.backward_codecs.lucene50;
 
 import java.io.IOException;
 import java.util.Objects;
-import org.apache.lucene.backward_codecs.lucene87.compressing.CompressingStoredFieldsFormat;
+import org.apache.lucene.backward_codecs.lucene87.compressing.Lucene87CompressingStoredFieldsFormat;
 import org.apache.lucene.backward_codecs.lucene87.compressing.CompressionMode;
 import org.apache.lucene.codecs.StoredFieldsFormat;
 import org.apache.lucene.codecs.StoredFieldsReader;
@@ -147,10 +147,10 @@ public class Lucene50StoredFieldsFormat extends StoredFieldsFormat {
   StoredFieldsFormat impl(Mode mode) {
     switch (mode) {
       case BEST_SPEED:
-        return new CompressingStoredFieldsFormat(
+        return new Lucene87CompressingStoredFieldsFormat(
             "Lucene50StoredFieldsFastData", CompressionMode.FAST, 1 << 14, 128, 10);
       case BEST_COMPRESSION:
-        return new CompressingStoredFieldsFormat(
+        return new Lucene87CompressingStoredFieldsFormat(
             "Lucene50StoredFieldsHighData", CompressionMode.HIGH_COMPRESSION, 61440, 512, 10);
       default:
         throw new AssertionError();

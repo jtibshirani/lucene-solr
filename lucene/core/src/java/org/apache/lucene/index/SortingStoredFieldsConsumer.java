@@ -26,7 +26,7 @@ import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.codecs.StoredFieldsFormat;
 import org.apache.lucene.codecs.StoredFieldsReader;
 import org.apache.lucene.codecs.StoredFieldsWriter;
-import org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsFormat;
+import org.apache.lucene.codecs.lucene90.compressing.Lucene90CompressingStoredFieldsFormat;
 import org.apache.lucene.codecs.lucene90.compressing.CompressionMode;
 import org.apache.lucene.codecs.lucene90.compressing.Compressor;
 import org.apache.lucene.codecs.lucene90.compressing.Decompressor;
@@ -79,7 +79,7 @@ final class SortingStoredFieldsConsumer extends StoredFieldsConsumer {
         }
       };
   private static final StoredFieldsFormat TEMP_STORED_FIELDS_FORMAT =
-      new CompressingStoredFieldsFormat("TempStoredFields", NO_COMPRESSION, 128 * 1024, 1, 10);
+      new Lucene90CompressingStoredFieldsFormat("TempStoredFields", NO_COMPRESSION, 128 * 1024, 1, 10);
   TrackingTmpOutputDirectoryWrapper tmpDirectory;
 
   SortingStoredFieldsConsumer(Codec codec, Directory directory, SegmentInfo info) {

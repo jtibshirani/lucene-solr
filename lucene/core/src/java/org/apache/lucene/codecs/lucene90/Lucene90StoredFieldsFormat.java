@@ -21,7 +21,7 @@ import java.util.Objects;
 import org.apache.lucene.codecs.StoredFieldsFormat;
 import org.apache.lucene.codecs.StoredFieldsReader;
 import org.apache.lucene.codecs.StoredFieldsWriter;
-import org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsFormat;
+import org.apache.lucene.codecs.lucene90.compressing.Lucene90CompressingStoredFieldsFormat;
 import org.apache.lucene.codecs.lucene90.compressing.CompressionMode;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.SegmentInfo;
@@ -157,10 +157,10 @@ public class Lucene90StoredFieldsFormat extends StoredFieldsFormat {
   StoredFieldsFormat impl(Mode mode) {
     switch (mode) {
       case BEST_SPEED:
-        return new CompressingStoredFieldsFormat(
+        return new Lucene90CompressingStoredFieldsFormat(
             "Lucene87StoredFieldsFastData", BEST_SPEED_MODE, BEST_SPEED_BLOCK_LENGTH, 1024, 10);
       case BEST_COMPRESSION:
-        return new CompressingStoredFieldsFormat(
+        return new Lucene90CompressingStoredFieldsFormat(
             "Lucene87StoredFieldsHighData",
             BEST_COMPRESSION_MODE,
             BEST_COMPRESSION_BLOCK_LENGTH,

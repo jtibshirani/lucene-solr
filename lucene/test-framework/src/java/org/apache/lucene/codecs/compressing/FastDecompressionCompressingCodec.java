@@ -16,6 +16,8 @@
  */
 package org.apache.lucene.codecs.compressing;
 
+import org.apache.lucene.codecs.lucene90.compressing.CompressionMode;
+
 /** CompressionCodec that uses {@link CompressionMode#FAST_DECOMPRESSION} */
 public class FastDecompressionCompressingCodec extends CompressingCodec {
 

@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.codecs.compressing;
+package org.apache.lucene.codecs.lucene90.compressing;
 
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.FLAGS_BITS;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.META_VERSION_START;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.OFFSETS;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.PACKED_BLOCK_SIZE;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.PAYLOADS;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.POSITIONS;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VECTORS_EXTENSION;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VECTORS_INDEX_CODEC_NAME;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VECTORS_INDEX_EXTENSION;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VECTORS_META_EXTENSION;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VERSION_CURRENT;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VERSION_META;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VERSION_OFFHEAP_INDEX;
-import static org.apache.lucene.codecs.compressing.CompressingTermVectorsWriter.VERSION_START;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.FLAGS_BITS;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.META_VERSION_START;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.OFFSETS;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.PACKED_BLOCK_SIZE;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.PAYLOADS;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.POSITIONS;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VECTORS_EXTENSION;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VECTORS_INDEX_CODEC_NAME;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VECTORS_INDEX_EXTENSION;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VECTORS_META_EXTENSION;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VERSION_CURRENT;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VERSION_META;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VERSION_OFFHEAP_INDEX;
+import static org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsWriter.VERSION_START;
 
 import java.io.Closeable;
 import java.io.IOException;

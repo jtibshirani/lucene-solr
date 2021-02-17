@@ -22,6 +22,9 @@ import org.apache.lucene.codecs.FilterCodec;
 import org.apache.lucene.codecs.StoredFieldsFormat;
 import org.apache.lucene.codecs.TermVectorsFormat;
 import org.apache.lucene.codecs.compressing.dummy.DummyCompressingCodec;
+import org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsFormat;
+import org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsFormat;
+import org.apache.lucene.codecs.lucene90.compressing.CompressionMode;
 import org.apache.lucene.util.TestUtil;
 import org.apache.lucene.util.packed.DirectMonotonicWriter;
 

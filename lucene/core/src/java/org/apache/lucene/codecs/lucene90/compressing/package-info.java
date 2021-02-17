@@ -14,15 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.codecs.compressing;
 
-import org.apache.lucene.codecs.lucene90.compressing.CompressionMode;
-
-public class TestFastCompressionMode extends AbstractTestCompressionMode {
-
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    mode = CompressionMode.FAST;
-  }
-}
+/** StoredFieldsFormat that allows cross-document and cross-field compression of stored fields. */
+package org.apache.lucene.codecs.lucene90.compressing;

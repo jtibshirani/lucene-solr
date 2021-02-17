@@ -18,10 +18,10 @@ package org.apache.lucene.codecs.lucene50;
 
 import org.apache.lucene.codecs.CodecUtil;
 import org.apache.lucene.codecs.TermVectorsFormat;
-import org.apache.lucene.codecs.compressing.CompressingTermVectorsFormat;
-import org.apache.lucene.codecs.compressing.CompressionMode;
-import org.apache.lucene.codecs.compressing.FieldsIndexWriter;
 import org.apache.lucene.codecs.lucene90.Lucene90StoredFieldsFormat;
+import org.apache.lucene.codecs.lucene90.compressing.CompressingTermVectorsFormat;
+import org.apache.lucene.codecs.lucene90.compressing.CompressionMode;
+import org.apache.lucene.codecs.lucene90.compressing.FieldsIndexWriter;
 import org.apache.lucene.store.DataOutput;
 import org.apache.lucene.util.packed.BlockPackedWriter;
 import org.apache.lucene.util.packed.PackedInts;

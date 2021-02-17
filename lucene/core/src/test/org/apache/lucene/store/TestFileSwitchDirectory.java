@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import org.apache.lucene.analysis.MockAnalyzer;
-import org.apache.lucene.codecs.compressing.CompressingStoredFieldsWriter;
+import org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.index.IndexReader;

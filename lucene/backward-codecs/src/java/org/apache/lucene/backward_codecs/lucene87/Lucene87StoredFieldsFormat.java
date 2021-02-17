@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.codecs.lucene87;
+package org.apache.lucene.backward_codecs.lucene87;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -139,19 +139,7 @@ public class Lucene87StoredFieldsFormat extends StoredFieldsFormat {
   @Override
   public StoredFieldsWriter fieldsWriter(Directory directory, SegmentInfo si, IOContext context)
       throws IOException {
-    String previous = si.putAttribute(MODE_KEY, mode.name());
-    if (previous != null && previous.equals(mode.name()) == false) {
-      throw new IllegalStateException(
-          "found existing value for "
-              + MODE_KEY
-              + " for segment: "
-              + si.name
-              + "old="
-              + previous
-              + ", new="
-              + mode.name());
-    }
-    return impl(mode).fieldsWriter(directory, si, context);
+    throw new UnsupportedOperationException("Old codecs may only be used for reading");
   }
 
   StoredFieldsFormat impl(Mode mode) {

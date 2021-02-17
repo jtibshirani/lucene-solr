@@ -16,15 +16,11 @@
  */
 package org.apache.lucene.backward_codecs.lucene50;
 
-import org.apache.lucene.backward_codecs.lucene87.Lucene87RWCodec;
-import org.apache.lucene.codecs.Codec;
-import org.apache.lucene.index.BaseCompoundFormatTestCase;
-
-public class TestLucene50CompoundFormat extends BaseCompoundFormatTestCase {
-  ;
+/** Test the merge instance of the Lucene50 stored fields format. */
+public class TestLucene87StoredFieldsFormatMergeInstance extends TestLucene50StoredFieldsFormat {
 
   @Override
-  protected Codec getCodec() {
-    return new Lucene87RWCodec();
+  protected boolean shouldTestMergeInstance() {
+    return true;
   }
 }

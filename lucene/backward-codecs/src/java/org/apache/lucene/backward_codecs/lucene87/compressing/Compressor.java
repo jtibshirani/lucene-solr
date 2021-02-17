@@ -14,15 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.codecs.lucene87;
+package org.apache.lucene.backward_codecs.lucene87.compressing;
 
-import org.apache.lucene.codecs.Codec;
-import org.apache.lucene.index.BaseStoredFieldsFormatTestCase;
-import org.apache.lucene.util.TestUtil;
+import java.io.Closeable;
+import java.io.IOException;
+import org.apache.lucene.store.DataOutput;
 
-public class TestLucene87StoredFieldsFormat extends BaseStoredFieldsFormatTestCase {
-  @Override
-  protected Codec getCodec() {
-    return TestUtil.getDefaultCodec();
-  }
+/** A data compressor. */
+public abstract class Compressor implements Closeable {
+
+  /** Sole constructor, typically called from sub-classes. */
+  protected Compressor() {}
+
+  /**
+   * Compress bytes into <code>out</code>. It is the responsibility of the compressor to add all
+   * necessary information so that a {@link Decompressor} will know when to stop decompressing bytes
+   * from the stream.
+   */
+  public abstract void compress(byte[] bytes, int off, int len, DataOutput out) throws IOException;
 }

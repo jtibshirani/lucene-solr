@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.backward_codecs.lucene50;
+package org.apache.lucene.codecs.lucene90;
 
-import org.apache.lucene.backward_codecs.lucene87.Lucene87RWCodec;
 import org.apache.lucene.codecs.Codec;
-import org.apache.lucene.index.BaseCompoundFormatTestCase;
+import org.apache.lucene.index.BaseStoredFieldsFormatTestCase;
+import org.apache.lucene.util.TestUtil;
 
-public class TestLucene50CompoundFormat extends BaseCompoundFormatTestCase {
-  ;
-
+public class TestLucene90StoredFieldsFormat extends BaseStoredFieldsFormatTestCase {
   @Override
   protected Codec getCodec() {
-    return new Lucene87RWCodec();
+    return TestUtil.getDefaultCodec();
   }
 }

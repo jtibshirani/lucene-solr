@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.backward_codecs.lucene50;
+package org.apache.lucene.backward_codecs.lucene87;
 
-/** Test the merge instance of the Lucene50 stored fields format. */
-public class TestLucene50StoredFieldsFormatMergeInstance extends TestLucene50StoredFieldsFormat {
+import org.apache.lucene.codecs.Codec;
+import org.apache.lucene.index.BaseStoredFieldsFormatTestCase;
 
+public class TestLucene87StoredFieldsFormat extends BaseStoredFieldsFormatTestCase {
   @Override
-  protected boolean shouldTestMergeInstance() {
-    return true;
+  protected Codec getCodec() {
+    return new Lucene87RWCodec();
   }
 }

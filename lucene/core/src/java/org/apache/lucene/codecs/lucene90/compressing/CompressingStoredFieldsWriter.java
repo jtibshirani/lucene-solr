@@ -72,12 +72,8 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter {
   static final int TYPE_BITS = PackedInts.bitsRequired(NUMERIC_DOUBLE);
   static final int TYPE_MASK = (int) PackedInts.maxValue(TYPE_BITS);
 
-  static final int VERSION_START = 1;
-  static final int VERSION_OFFHEAP_INDEX = 2;
-  /** Version where all metadata were moved to the meta file. */
-  static final int VERSION_META = 3;
-
-  static final int VERSION_CURRENT = VERSION_META;
+  static final int VERSION_START = 0;
+  static final int VERSION_CURRENT = VERSION_START;
   static final int META_VERSION_START = 0;
 
   private final String segment;

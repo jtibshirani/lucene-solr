@@ -36,8 +36,6 @@ import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFie
 import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter.TYPE_BITS;
 import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter.TYPE_MASK;
 import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter.VERSION_CURRENT;
-import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter.VERSION_META;
-import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter.VERSION_OFFHEAP_INDEX;
 import static org.apache.lucene.codecs.lucene90.compressing.CompressingStoredFieldsWriter.VERSION_START;
 
 import java.io.EOFException;
@@ -140,25 +138,18 @@ public final class CompressingStoredFieldsReader extends StoredFieldsReader {
       assert CodecUtil.indexHeaderLength(formatName, segmentSuffix)
           == fieldsStream.getFilePointer();
 
-      if (version >= VERSION_OFFHEAP_INDEX) {
-        final String metaStreamFN =
-            IndexFileNames.segmentFileName(segment, segmentSuffix, META_EXTENSION);
-        metaIn = d.openChecksumInput(metaStreamFN, IOContext.READONCE);
-        CodecUtil.checkIndexHeader(
-            metaIn,
-            INDEX_CODEC_NAME + "Meta",
-            META_VERSION_START,
-            version,
-            si.getId(),
-            segmentSuffix);
-      }
-      if (version >= VERSION_META) {
-        chunkSize = metaIn.readVInt();
-        packedIntsVersion = metaIn.readVInt();
-      } else {
-        chunkSize = fieldsStream.readVInt();
-        packedIntsVersion = fieldsStream.readVInt();
-      }
+      final String metaStreamFN =
+          IndexFileNames.segmentFileName(segment, segmentSuffix, META_EXTENSION);
+      metaIn = d.openChecksumInput(metaStreamFN, IOContext.READONCE);
+      CodecUtil.checkIndexHeader(
+          metaIn,
+          INDEX_CODEC_NAME + "Meta",
+          META_VERSION_START,
+          version,
+          si.getId(),
+          segmentSuffix);
+      chunkSize = metaIn.readVInt();
+      packedIntsVersion = metaIn.readVInt();
 
       decompressor = compressionMode.newDecompressor();
       this.merging = false;
@@ -173,61 +164,17 @@ public final class CompressingStoredFieldsReader extends StoredFieldsReader {
       long maxPointer = -1;
       FieldsIndex indexReader = null;
 
-      if (version < VERSION_OFFHEAP_INDEX) {
-        // Load the index into memory
-        final String indexName = IndexFileNames.segmentFileName(segment, segmentSuffix, "fdx");
-        try (ChecksumIndexInput indexStream = d.openChecksumInput(indexName, context)) {
-          Throwable priorE = null;
-          try {
-            assert formatName.endsWith("Data");
-            final String codecNameIdx =
-                formatName.substring(0, formatName.length() - "Data".length()) + "Index";
-            final int version2 =
-                CodecUtil.checkIndexHeader(
-                    indexStream,
-                    codecNameIdx,
-                    VERSION_START,
-                    VERSION_CURRENT,
-                    si.getId(),
-                    segmentSuffix);
-            if (version != version2) {
-              throw new CorruptIndexException(
-                  "Version mismatch between stored fields index and data: "
-                      + version2
-                      + " != "
-                      + version,
-                  indexStream);
-            }
-            assert CodecUtil.indexHeaderLength(codecNameIdx, segmentSuffix)
-                == indexStream.getFilePointer();
-            indexReader = new LegacyFieldsIndexReader(indexStream, si);
-            maxPointer = indexStream.readVLong();
-          } catch (Throwable exception) {
-            priorE = exception;
-          } finally {
-            CodecUtil.checkFooter(indexStream, priorE);
-          }
-        }
-      } else {
-        FieldsIndexReader fieldsIndexReader =
-            new FieldsIndexReader(
-                d, si.name, segmentSuffix, INDEX_EXTENSION, INDEX_CODEC_NAME, si.getId(), metaIn);
-        indexReader = fieldsIndexReader;
-        maxPointer = fieldsIndexReader.getMaxPointer();
-      }
+      FieldsIndexReader fieldsIndexReader =
+          new FieldsIndexReader(
+              d, si.name, segmentSuffix, INDEX_EXTENSION, INDEX_CODEC_NAME, si.getId(), metaIn);
+      indexReader = fieldsIndexReader;
+      maxPointer = fieldsIndexReader.getMaxPointer();
 
       this.maxPointer = maxPointer;
       this.indexReader = indexReader;
 
-      if (version >= VERSION_META) {
-        numDirtyChunks = metaIn.readVLong();
-        numDirtyDocs = metaIn.readVLong();
-      } else {
-        // Old versions of this format did not record numDirtyDocs. Since bulk
-        // merges are disabled on version increments anyway, we make no effort
-        // to get valid values of numDirtyChunks and numDirtyDocs.
-        numDirtyChunks = numDirtyDocs = -1;
-      }
+      numDirtyChunks = metaIn.readVLong();
+      numDirtyDocs = metaIn.readVLong();
 
       if (metaIn != null) {
         CodecUtil.checkFooter(metaIn, null);

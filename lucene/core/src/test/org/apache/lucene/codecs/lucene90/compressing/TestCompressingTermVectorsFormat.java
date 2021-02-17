@@ -16,6 +16,7 @@
  */
 package org.apache.lucene.codecs.lucene90.compressing;
 
+import java.io.IOException;
 import org.apache.lucene.analysis.MockAnalyzer;
 import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.codecs.compressing.CompressingCodec;
@@ -37,8 +38,6 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.index.TermsEnum.SeekStatus;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
-
-import java.io.IOException;
 
 public class TestCompressingTermVectorsFormat extends BaseTermVectorsFormatTestCase {
 
